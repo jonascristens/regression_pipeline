@@ -1,0 +1,4 @@
+target_col: accepted
+pred_col: y_pred
+pred_proba_col: y_pred_proba
+date_col: created_date_off

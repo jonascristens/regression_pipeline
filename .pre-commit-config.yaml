@@ -1,0 +1,37 @@
+repos:
+# - repo: https://github.com/astral-sh/ruff-pre-commit
+#   # Ruff version.
+#   rev: v0.9.4
+#   hooks:
+#     # Run the linter.
+#     - id: ruff
+#       args: [ --fix ]
+#     # Run the formatter.
+#     - id: ruff-format
+# -   repo: https://github.com/codespell-project/codespell
+#     rev: v2.3.0
+#     hooks:
+#     -   id: codespell
+#         types_or: [python, rst, markdown, cython, c]
+# -   repo: https://github.com/PyCQA/isort
+#     rev: 5.13.2
+#     hooks:
+#     -   id: isort
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+    -   id: check-case-conflict
+    -   id: check-toml
+    -   id: check-xml
+    -   id: check-yaml
+        exclude: ^ci/meta.yaml$
+    -   id: end-of-file-fixer
+        exclude: \.txt$
+    -   id: mixed-line-ending
+        args: [--fix=auto]
+        exclude: ^pandas/tests/io/parser/data/utf16_ex.txt$
+    -   id: fix-byte-order-marker
+    -   id: fix-encoding-pragma
+        args: [--remove]
+    -   id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]

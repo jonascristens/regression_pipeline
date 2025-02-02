@@ -1,0 +1,117 @@
+# Here you can define all your Datasets by using simple YAML syntax.
+#
+# Documentation for this file format can be found in "The Data Catalog"
+# Link: https://docs.kedro.org/en/stable/data/data_catalog.html
+
+################## preprocessing ##################
+preprocessing.raw_dataset:
+  type: pandas.CSVDataset
+  filepath: data/01_raw/Colombia.csv
+
+preprocessing.master_dataset:
+  type: pandas.ParquetDataset
+  filepath: data/05_model_input/master_dataset.parquet
+
+################## modelling ##################
+modelling.modelling_dataset:
+  type: pandas.ParquetDataset
+  filepath: data/06_model_input/modelling_dataset.parquet
+
+modelling.x_train:
+  type: pickle.PickleDataset
+  filepath: data/06_model_input/x_train.pkl
+
+modelling.y_train:
+  type: pickle.PickleDataset
+  filepath: data/06_model_input/y_train.pkl
+
+modelling.x_test:
+  type: pickle.PickleDataset
+  filepath: data/06_model_input/x_test.pkl
+
+modelling.y_test:
+  type: pickle.PickleDataset
+  filepath: data/06_model_input/y_test.pkl
+
+modelling.fitted_pipeline:
+  type: pickle.PickleDataset
+  filepath: data/07_model_output/fitted_pipeline.pkl
+
+modelling.best_params:
+  type: pickle.PickleDataset
+  filepath: data/07_model_output/best_params.pkl
+
+modelling.best_value:
+  type: pickle.PickleDataset
+  filepath: data/07_model_output/best_value.pkl
+
+modelling.study:
+  type: pickle.PickleDataset
+  filepath: data/07_model_output/study.pkl
+
+modelling.feature_importance_plot:
+  type: matplotlib.MatplotlibWriter
+  filepath: data/09_tracking/feature_importance_plot.png
+  versioned: true
+
+modelling.validation_metric_plot:
+  type: matplotlib.MatplotlibWriter
+  filepath: data/09_tracking/validation_metric_plot.png
+  versioned: true
+
+################## inference ##################
+inference.predictions:
+  type: pandas.ParquetDataset
+  filepath: data/07_model_output/predictions.parquet
+
+################## tracking ##################
+reporting.model_metrics:
+  type: tracking.MetricsDataset
+  filepath: data/09_tracking/model_metrics.json
+  versioned: true
+
+reporting.validation_curve_plot:
+  type: matplotlib.MatplotlibWriter
+  filepath: data/09_tracking/validation_curve_plot.png
+  versioned: true
+
+reporting.roc_auc_plot:
+  type: matplotlib.MatplotlibWriter
+  filepath: data/09_tracking/roc_auc_plot.png
+  versioned: true
+
+reporting.confusion_matrix_plot:
+  type: matplotlib.MatplotlibWriter
+  filepath: data/09_tracking/confusion_matrix_plot.png
+  versioned: true
+
+reporting.precision_recall_plot:
+  type: matplotlib.MatplotlibWriter
+  filepath: data/09_tracking/precision_recall_plot.png
+  versioned: true
+
+reporting.actual_vs_predicted_plot:
+  type: partitions.PartitionedDataset
+  path: data/08_reporting/a_vs_e_plots
+  dataset: matplotlib.MatplotlibWriter
+  filename_suffix: .png
+
+reporting.shap_values:
+  type: pickle.PickleDataset
+  filepath: data/07_model_output/shap_values.pkl
+
+reporting.shap_beeswarm_plot:
+  type: matplotlib.MatplotlibWriter
+  filepath: data/09_tracking/shap_beeswarm_plot.png
+  versioned: true
+
+reporting.shap_feature_importance_plot:
+  type: matplotlib.MatplotlibWriter
+  filepath: data/09_tracking/shap_feature_importance_plot.png
+  versioned: true
+
+reporting.pdp_plot:
+  type: partitions.PartitionedDataset
+  path: data/08_reporting/pdp_plot
+  dataset: matplotlib.MatplotlibWriter
+  filename_suffix: .png

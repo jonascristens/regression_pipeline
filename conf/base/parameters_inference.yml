@@ -1,0 +1,11 @@
+# This is a boilerplate parameters config generated for pipeline 'modelling'
+# using Kedro 0.19.11.
+#
+# Documentation for this file format can be found in "Parameters"
+# Link: https://docs.kedro.org/en/0.19.11/configuration/parameters.html
+
+
+inference:
+  predict:
+    pred_col: "${globals:pred_col}"
+    pred_proba_col: "${globals:pred_proba_col}"
