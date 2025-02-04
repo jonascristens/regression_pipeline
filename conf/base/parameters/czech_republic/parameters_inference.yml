@@ -5,7 +5,7 @@
 # Link: https://docs.kedro.org/en/0.19.11/configuration/parameters.html
 
 
-inference:
+czech_republic.inference:
   predict:
     pred_col: "${globals:pred_col}"
     pred_proba_col: "${globals:pred_proba_col}"

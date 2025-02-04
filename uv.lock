@@ -146,11 +146,11 @@ wheels = [
 
 [[package]]
 name = "certifi"
-version = "2024.12.14"
+version = "2025.1.31"
 source = { registry = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/simple" }
-sdist = { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/packages/packages/0f/bd/1d41ee578ce09523c81a15426705dd20969f5abf006d1afe8aeff0dd776a/certifi-2024.12.14.tar.gz", hash = "sha256:b650d30f370c2b724812bee08008be0c4163b163ddaec3f2546c1caf65f191db" }
+sdist = { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/packages/packages/1c/ab/c9f1e32b7b1bf505bf26f0ef697775960db7932abeb7b516de930ba2705f/certifi-2025.1.31.tar.gz", hash = "sha256:3d5da6925056f6f18f119200434a4780a94263f10d1c21d032a6f6b2baa20651" }
 wheels = [
-    { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/certifi-2024.12.14-py3-none-any.whl", hash = "sha256:1275f7a45be9464efc1173084eaa30f866fe2e47d389406136d332ed4967ec56" },
+    { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/packages/packages/38/fc/bce832fd4fd99766c04d1ee0eead6b0ec6486fb100ae5e74c1d91292b982/certifi-2025.1.31-py3-none-any.whl", hash = "sha256:ca78db4565a652026a4db2bcdf68f2fb589ea80d0be70e03929ed730746b84fe" },
 ]
 
 [[package]]
@@ -509,6 +509,34 @@ wheels = [
 ]
 
 [[package]]
+name = "dython"
+version = "0.7.9"
+source = { registry = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/simple" }
+dependencies = [
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "psutil" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+    { name = "seaborn" },
+    { name = "setuptools" },
+]
+sdist = { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/packages/packages/b8/23/859e622abf41158c574c85c90a82a20a07f065216f0add102ab8c20b86dd/dython-0.7.9.tar.gz", hash = "sha256:105deaded5e51cd9ccfc471584100e15e24d6768446ed413cf6c6fefc421c67e" }
+wheels = [
+    { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/packages/packages/0a/14/517c0f5ca986925a85d6af29928a464bb24019999ff49a5a387559008a01/dython-0.7.9-py3-none-any.whl", hash = "sha256:c8aa397651c2fedacddf293cd8370401f1bbbced88f1295fb7fdb36504c88adf" },
+]
+
+[[package]]
+name = "et-xmlfile"
+version = "2.0.0"
+source = { registry = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/simple" }
+sdist = { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/packages/packages/d3/38/af70d7ab1ae9d4da450eeec1fa3918940a5fafb9055e934af8d6eb0c2313/et_xmlfile-2.0.0.tar.gz", hash = "sha256:dab3f4764309081ce75662649be815c4c9081e88f0837825f90fd28317d4da54" }
+wheels = [
+    { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/et_xmlfile-2.0.0-py3-none-any.whl", hash = "sha256:7a91720bc756843502c3b7504c77b8fe44217c85c537d85037f0f536151b2caa" },
+]
+
+[[package]]
 name = "exceptiongroup"
 version = "1.2.2"
 source = { registry = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/simple" }
@@ -592,11 +620,11 @@ wheels = [
 
 [[package]]
 name = "fsspec"
-version = "2024.12.0"
+version = "2025.2.0"
 source = { registry = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/simple" }
-sdist = { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/packages/packages/ee/11/de70dee31455c546fbc88301971ec03c328f3d1138cfba14263f651e9551/fsspec-2024.12.0.tar.gz", hash = "sha256:670700c977ed2fb51e0d9f9253177ed20cbde4a3e5c0283cc5385b5870c8533f" }
+sdist = { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/packages/packages/b5/79/68612ed99700e6413de42895aa725463e821a6b3be75c87fcce1b4af4c70/fsspec-2025.2.0.tar.gz", hash = "sha256:1c24b16eaa0a1798afa0337aa0db9b256718ab2a89c425371f5628d22c3b6afd" }
 wheels = [
-    { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/fsspec-2024.12.0-py3-none-any.whl", hash = "sha256:b520aed47ad9804237ff878b504267a3b0b441e97508bd6d2d8774e3db85cee2" },
+    { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/packages/packages/e2/94/758680531a00d06e471ef649e4ec2ed6bf185356a7f9fbfbb7368a40bd49/fsspec-2025.2.0-py3-none-any.whl", hash = "sha256:9de2ad9ce1f85e1931858535bc882543171d197001a0a5eb2ddc04f1781ab95b" },
 ]
 
 [[package]]
@@ -1392,6 +1420,18 @@ wheels = [
 ]
 
 [[package]]
+name = "openpyxl"
+version = "3.1.5"
+source = { registry = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/simple" }
+dependencies = [
+    { name = "et-xmlfile" },
+]
+sdist = { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/packages/packages/3d/f9/88d94a75de065ea32619465d2f77b29a0469500e99012523b91cc4141cd1/openpyxl-3.1.5.tar.gz", hash = "sha256:cf0e3cf56142039133628b5acffe8ef0c12bc902d2aadd3e0fe5878dc08d1050" }
+wheels = [
+    { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/packages/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl", hash = "sha256:5282c12b107bffeef825f4617dc029afaf41d0ea60823bbb665ef3079dc79de2" },
+]
+
+[[package]]
 name = "optuna"
 version = "4.2.0"
 source = { registry = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/simple" }
@@ -1674,6 +1714,7 @@ name = "pricing"
 version = "0.0.1"
 source = { editable = "." }
 dependencies = [
+    { name = "dython" },
     { name = "ipykernel" },
     { name = "ipython" },
     { name = "kedro" },
@@ -1681,6 +1722,7 @@ dependencies = [
     { name = "kedro-viz" },
     { name = "lightgbm" },
     { name = "numpy" },
+    { name = "openpyxl" },
     { name = "optuna" },
     { name = "pandas" },
     { name = "pre-commit" },
@@ -1697,6 +1739,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "dython", specifier = ">=0.7.9" },
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "ipython", specifier = "~=8.31.0" },
     { name = "kedro", specifier = ">=0.19.11" },
@@ -1704,6 +1747,7 @@ requires-dist = [
     { name = "kedro-viz", specifier = ">=10.1.0" },
     { name = "lightgbm", specifier = ">=4.5.0" },
     { name = "numpy", specifier = "~=1.23.5" },
+    { name = "openpyxl", specifier = ">=3.1.5" },
     { name = "optuna", specifier = "~=4.2.0" },
     { name = "pandas", specifier = "~=1.5.3" },
     { name = "pre-commit", specifier = ">=4.1.0" },
@@ -1985,11 +2029,11 @@ global = [
 
 [[package]]
 name = "pytz"
-version = "2024.2"
+version = "2025.1"
 source = { registry = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/simple" }
-sdist = { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/packages/packages/3a/31/3c70bf7603cc2dca0f19bdc53b4537a797747a58875b552c8c413d963a3f/pytz-2024.2.tar.gz", hash = "sha256:2aa355083c50a0f93fa581709deac0c9ad65cca8a9e9beac660adcbd493c798a" }
+sdist = { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/packages/packages/5f/57/df1c9157c8d5a05117e455d66fd7cf6dbc46974f832b1058ed4856785d8a/pytz-2025.1.tar.gz", hash = "sha256:c2db42be2a2518b28e65f9207c4d05e6ff547d1efa4086469ef855e4ab70178e" }
 wheels = [
-    { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/pytz-2024.2-py2.py3-none-any.whl", hash = "sha256:31c7c1817eb7fae7ca4b8c7ee50c72f93aa2dd863de768e1ef4245d426aa0725" },
+    { url = "https://mckinsey.jfrog.io/artifactory/api/pypi/python/packages/packages/eb/38/ac33370d784287baa1c3d538978b5e2ea064d4c1b93ffbd12826c190dd10/pytz-2025.1-py2.py3-none-any.whl", hash = "sha256:89dd22dca55b46eac6eda23b2d72721bf1bdfef212645d81513ef5d03038de57" },
 ]
 
 [[package]]

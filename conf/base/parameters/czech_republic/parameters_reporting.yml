@@ -4,5 +4,5 @@
 # Documentation for this file format can be found in "Parameters"
 # Link: https://docs.kedro.org/en/0.19.11/configuration/parameters.html
 
-reporting:
+czech_republic.reporting:
   pdp_plot:

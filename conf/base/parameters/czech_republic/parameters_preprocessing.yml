@@ -4,18 +4,49 @@
 # Documentation for this file format can be found in "Parameters"
 # Link: https://docs.kedro.org/en/0.19.11/configuration/parameters.html
 
-preprocessing:
+czech_republic.preprocessing:
   standardize:
     rename_columns:
       "PROD.MIX:TDEXPORT": "prod_mix_tdexport"
       "PROD.MIX:TDIMPORT": "prod_mix_tdimport"
       "PROD.MIX:TD3RD": "prod_mix_td3rd"
-      # "PROD.MIX:DDEXPORT": "prod_mix_ddexport" # not available in dataset
-      # "PROD.MIX:DDIMPORT": "prod_mix_ddimport" # not available in dataset
-      # "PROD.MIX:DD3RD": "prod_mix_dd3rd" # not available in dataset
+      "PROD.MIX:DDEXPORT": "prod_mix_ddexport"
+      "PROD.MIX:DDIMPORT": "prod_mix_ddimport"
+      "PROD.MIX:DD3RD": "prod_mix_dd3rd"
       "PROD.MIX:TDDOM": "prod_mix_tddom"
-      # "PROD.MIX:TD3DOM": "prod_mix_td3dom" # not available in dataset
+      "PROD.MIX:TD3DOM": "prod_mix_td3dom"
       "PROD.MIX:OTHER": "prod_mix_other"
+
+    keep_columns:
+      - "published_revenue_shp"
+      - "created_date_off"
+      - "discount_shp"
+      - "final_outcome"
+      - "organization_id"
+      - "product_cluster_shp"
+      - "loyalty_code_cust"
+      - "industry"  # 'industry_code_cust'
+      - "opportunity_type_oppo"
+      - "lead_cust"  # 'reason_for_lead_cust'
+      - "initiator_cust"  # 'lead_source_type_cust'
+      - "competitor_oppo"  # 'primary_competitor_oppo'
+      - "log_published_revenue"
+      - "log_published_revenue_sq"
+      - "log_potential_revenue"
+      - "log_offer_published_revenue"
+      - "log_shipments"
+      - "log_wps"
+      - "log_weight"
+      - "prod_mix_tdexport"
+      - "prod_mix_tdimport"
+      - "prod_mix_td3rd"
+      - "prod_mix_ddexport"
+      - "prod_mix_ddimport"
+      - "prod_mix_dd3rd"
+      - "prod_mix_tddom"
+      - "prod_mix_td3dom"
+      - "prod_mix_other"
+      - "ecomm"
 
   dtypes:
     to_category:
@@ -32,6 +63,7 @@ preprocessing:
       - # 'competitor_cust' # 'competitor_cust' - additional
 
     to_numeric:
+      - "discount_shp"
       - "log_published_revenue"
       - "log_published_revenue_sq"
       - "log_potential_revenue"
@@ -42,13 +74,16 @@ preprocessing:
       - "prod_mix_tdexport"
       - "prod_mix_tdimport"
       - "prod_mix_td3rd"
-      # - "prod_mix_ddexport" # not available in dataset
-      # - "prod_mix_ddimport" # not available in dataset
-      # - "prod_mix_dd3rd" # not available in dataset
+      - "prod_mix_ddexport"
+      - "prod_mix_ddimport"
+      - "prod_mix_dd3rd"
       - "prod_mix_tddom"
-      # - "prod_mix_td3dom" # not available in dataset
+      - "prod_mix_td3dom"
       - "prod_mix_other"
       - ecomm
 
     to_datetime:
-      - updated_date_shp
+      - "${globals:date_col}"
+
+  clean:
+    organization_id: "DHL CZ"

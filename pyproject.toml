@@ -22,7 +22,6 @@ attr = "pricing.__version__"
 where = [ "src",]
 namespaces = false
 
-
 [project]
 name = "pricing"
 version = "0.0.1"
@@ -30,6 +29,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "dython>=0.7.9",
     "ipykernel>=6.29.5",
     "ipython~=8.31.0",
     "kedro-datasets[pandas-csvdataset,pandas-parquetdataset,tracking-metricsdataset]>=6.0.0",
@@ -37,6 +37,7 @@ dependencies = [
     "kedro>=0.19.11",
     "lightgbm>=4.5.0",
     "numpy~=1.23.5",
+    "openpyxl>=3.1.5",
     "optuna~=4.2.0",
     "pandas~=1.5.3",
     "pre-commit>=4.1.0",
@@ -81,6 +82,7 @@ exclude = [
     "node_modules",
     "site-packages",
     "venv",
+    "archive"
 ]
 
 # Same as Black.
@@ -94,7 +96,21 @@ target-version = "py39"
 # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
 # Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
 # McCabe complexity (`C901`) by default.
-select = ["E4", "E7", "E9", "F"]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
+exclude = ["*.ipynb"]
 ignore = []
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
@@ -130,6 +146,7 @@ docstring-code-format = false
 # This only has an effect when the `docstring-code-format` setting is
 # enabled.
 docstring-code-line-length = "dynamic"
+exclude = ["*.ipynb"]
 
 [tool.kedro_telemetry]
 project_id = "2789cc72654649d7a02fc9a4bfda9fce"

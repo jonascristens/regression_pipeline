@@ -1,0 +1,27 @@
+# This is a boilerplate parameters config generated for pipeline 'simulation'
+# using Kedro 0.19.11.
+#
+# Documentation for this file format can be found in "Parameters"
+# Link: https://docs.kedro.org/en/0.19.11/configuration/parameters.html
+
+_min_discount: &min_discount 0
+_max_discount: &max_discount 1
+_price_steps: &price_steps 0.1
+
+colombia.simulation:
+  discount:
+    revenue_col: published_revenue_shp
+    discount_col: discount_shp
+    min_discount: *min_discount
+    max_discount: *max_discount
+    price_steps: *price_steps
+
+  optimize:
+    min_discount: *min_discount
+    max_discount: *max_discount
+    price_steps: *price_steps
+
+  plot_results:
+    min_discount: *min_discount
+    max_discount: *max_discount
+    price_steps: *price_steps

@@ -2,3 +2,11 @@ target_col: accepted
 pred_col: y_pred
 pred_proba_col: y_pred_proba
 date_col: created_date_off
+
+countries:
+# - "colombia"
+- "czech_republic"
+# - "italy"
+# - "taiwan"
+# - "thailand"
+# - "united_arab_emirates"

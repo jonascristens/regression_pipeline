@@ -17,6 +17,7 @@ _features: &features
   - "competitor_oppo"  # 'primary_competitor_oppo'
 
   # numeric columns
+  - "discount_shp"
   - "log_published_revenue"
   - "log_published_revenue_sq"
   - "log_potential_revenue"
@@ -27,27 +28,25 @@ _features: &features
   - "prod_mix_tdexport"
   - "prod_mix_tdimport"
   - "prod_mix_td3rd"
-  # - "prod_mix_ddexport" # not available in dataset
-  # - "prod_mix_ddimport" # not available in dataset
-  # - "prod_mix_dd3rd" # not available in dataset
+  - "prod_mix_ddexport"
+  - "prod_mix_ddimport"
+  - "prod_mix_dd3rd"
   - "prod_mix_tddom"
-  # - "prod_mix_td3dom" # not available in dataset
+  - "prod_mix_td3dom"
   - "prod_mix_other"
-  - ecomm
+  - "ecomm"
 
 
-modelling:
+czech_republic.modelling:
   target:
     original_target_col: final_outcome
     target_col: "${globals:target_col}"
 
   filter_dataset:
-    organization_id: "DHL CO"
     target_col: "${globals:target_col}"
     discount_col: "discount_shp"
 
-  split:
-    target_col: "${globals:target_col}"
+  train_split:
     date_col: "${globals:date_col}"
 
     train_start: "2022-11-01"
@@ -55,6 +54,8 @@ modelling:
     test_start: "2023-05-01"
     test_end: "2023-08-01"
 
+  x_y_split:
+    target_col: "${globals:target_col}"
     features: *features
 
 
@@ -75,7 +76,6 @@ modelling:
     # ordinal_encoding: None
 
     model:
-      # TODO implement positive monotonicity constraint for discount_shp
       random_state: *random_state
       objective: 'binary'
       verbosity: -1
@@ -87,7 +87,9 @@ modelling:
     sampler_conf:
       seed: *random_state
     study_conf:
-      n_trials: 2
+      n_trials: 50
+    monotone_constraints:
+        discount_shp: 1
 
   train_val:
     test_size: 0.3
