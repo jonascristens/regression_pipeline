@@ -5,10 +5,20 @@ generated using Kedro 0.19.11
 
 from kedro.pipeline import Pipeline, node, pipeline  # noqa
 
-from .nodes import (evaluate_model_metrics, generate_shap_values,
-                    plot_actual_vs_expected, plot_confusion_matrix,
-                    plot_precision_recall, plot_roc_auc, plot_shap_beeswarm,
-                    plot_shap_feature_importance, plot_sklearn_pdp, predict)
+from .nodes import (
+    evaluate_model_metrics,
+    generate_shap_values,
+    plot_actual_vs_expected,
+    plot_confusion_matrix,
+    plot_precision_recall,
+    plot_roc_auc,
+    plot_shap_beeswarm,
+    plot_shap_feature_importance,
+    plot_sklearn_pdp,
+    plot_ks_abc,
+    plot_calibration_curve,
+    predict,
+)
 
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -34,7 +44,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=plot_precision_recall,
-                inputs=["y_test", "y_pred"],
+                inputs=["y_test", "y_pred_proba"],
                 outputs="precision_recall_plot",
                 name="plot_precision_recall_node",
             ),
@@ -43,6 +53,18 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=["y_test", "y_pred"],
                 outputs="confusion_matrix_plot",
                 name="plot_confusion_matrix_node",
+            ),
+            node(
+                func=plot_calibration_curve,
+                inputs=["y_test", "y_pred_proba"],
+                outputs="calibration_curve_plot",
+                name="plot_calibration_curve_node",
+            ),
+            node(
+                func=plot_ks_abc,
+                inputs=["y_test", "y_pred_proba"],
+                outputs="ks_abc_plot",
+                name="plot_ks_abc_node",
             ),
             node(
                 func=plot_actual_vs_expected,

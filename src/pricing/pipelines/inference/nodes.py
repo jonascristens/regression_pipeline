@@ -2,8 +2,6 @@
 generated using Kedro 0.19.8
 """
 
-# from sklearn.tree import DecisionTreeClassifier
-
 import logging
 
 import pandas as pd
@@ -18,13 +16,13 @@ logger = logging.getLogger(__name__)
 def predict(
     df: pd.DataFrame, fitted_pipeline: Pipeline, pred_col: str, pred_proba_col: str
 ) -> pd.DataFrame:
-    """Predicts the target label and cluster for each row in the given DataFrame using the provided pipeline.
+    """Predicts the target label and cluster for each row.
 
     Args:
         pipeline (Pipeline): A scikit-learn pipeline object that includes the necessary
         preprocessing steps and the model.
         df (pd.DataFrame): The input DataFrame containing the data to be predicted.
-        inference_params (Dict[str, Any]): A dictionary containing the following keys:
+        inference_params (dict[str, Any]): A dictionary containing the following keys:
             - 'cluster_col': The name of the column to store the node identifier for
             each row.
             - 'predicted_target_col': The name of the column to store the predicted

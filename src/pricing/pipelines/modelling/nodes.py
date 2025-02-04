@@ -3,7 +3,8 @@ generated using Kedro 0.19.8
 """
 
 import logging
-from typing import Any, Dict, List, Tuple
+from collections import defaultdict
+from typing import Any
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -14,8 +15,7 @@ from lightgbm import LGBMClassifier, plot_importance, plot_metric
 from matplotlib.figure import Figure
 from optuna.samplers import TPESampler
 from sklearn.compose import make_column_transformer
-from sklearn.model_selection import (TimeSeriesSplit, cross_val_score,
-                                     train_test_split)
+from sklearn.model_selection import TimeSeriesSplit, cross_val_score, train_test_split
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.preprocessing import OrdinalEncoder, TargetEncoder
 
@@ -31,18 +31,18 @@ def fix_target(
     df: pd.DataFrame, original_target_col: str, target_col: str
 ) -> pd.DataFrame:
     """
-    Transforms the target column in the DataFrame based on the original target column values.
+    Transforms the target column in the DataFrame based on the original target column.
 
     Args:
         df (pd.DataFrame): The input DataFrame containing the target columns.
-        original_target_col (str): The name of the original target column in the DataFrame.
-        target_col (str): The name of the new target column to be created in the DataFrame.
+        original_target_col (str): The name of the original target column.
+        target_col (str): The name of the new target column to be created.
 
     Returns:
         pd.DataFrame: The DataFrame with the new target column added.
 
     Raises:
-        ValueError: If an unknown final outcome is encountered in the original target column.
+        ValueError: If an unknown final outcome is encountered in the original target.
     """
 
     def _determine_target(x):
@@ -63,7 +63,6 @@ def fix_target(
 def filter_dataset(
     df: pd.DataFrame,
     target_col: str,
-    organization_id: str | None = None,
     clip_min: int = 0,
     clip_max: int = 99,
     discount_col: str = "discount_shp",
@@ -73,10 +72,12 @@ def filter_dataset(
     Args:
         df (pd.DataFrame): The input DataFrame to be filtered.
         target_col (str): The name of the target column to check for non-null values.
-        organization_id (str | None, optional): The organization ID to filter by. Defaults to None.
-        clip_min (int, optional): The minimum value for the discount column filter. Defaults to 0.
-        clip_max (int, optional): The maximum value for the discount column filter. Defaults to 99.
-        discount_col (str, optional): The name of the discount column to apply the filter on. Defaults to "discount_shp".
+        clip_min (int, optional): The minimum value for the discount column filter.
+            Defaults to 0.
+        clip_max (int, optional): The maximum value for the discount column filter.
+            Defaults to 99.
+        discount_col (str, optional): The name of the discount column to apply
+            the filter on. Defaults to "discount_shp".
     Returns:
         pd.DataFrame: The filtered DataFrame with duplicates removed.
     """
@@ -86,12 +87,7 @@ def filter_dataset(
         & (df[target_col].notna())
     )
 
-    if organization_id is not None:
-        conditions &= df["organization_id"] == organization_id
-
-    df = df[conditions].drop_duplicates()
-
-    return df
+    return df[conditions]
 
 
 @expand_args
@@ -102,24 +98,7 @@ def create_train_test_split(
     train_end: str,
     test_start: str,
     test_end: str,
-    features: List[str],
-    target_col: str,
-) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
-    """
-    Splits the given DataFrame into training and testing sets based on the specified date ranges.
-    Args:
-        df (pd.DataFrame): The input DataFrame containing the data.
-        date_col (str): The name of the column containing date information.
-        train_start (str): The start date for the training set.
-        train_end (str): The end date for the training set.
-        test_start (str): The start date for the testing set.
-        test_end (str): The end date for the testing set.
-        features (List[str]): A list of column names to be used as features.
-        target_col (str): The name of the column to be used as the target variable.
-    Returns:
-        Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]: A tuple containing the training features (X_train),
-        training target (y_train), testing features (X_test), and testing target (y_test).
-    """
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     df = df.sort_values(by=date_col)
 
     df_train = df[
@@ -133,11 +112,13 @@ def create_train_test_split(
     logger.info(f"Train data shape: {df_train.shape}")
     logger.info(f"Test data shape: {df_test.shape}")
 
-    # TODO Check with Roman if we want this a hard check - I suggest so
-    # features = list(set(features) & set(df.columns))
-    # if missing_features := set(features) - set(df.columns):
-    # logger.warning(f"The following features are missing in the dataset: {', '.join(missing_features)}")
+    return df_train, df_test
 
+
+@expand_args
+def x_y_split(
+    df_train: pd.DataFrame, df_test: pd.DataFrame, features: list[str], target_col: str
+) -> tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
     X_train = df_train[features]
     y_train = df_train[target_col]
     X_test = df_test[features]
@@ -148,21 +129,26 @@ def create_train_test_split(
 
 @expand_args
 def create_modelling_pipeline(
-    target_encoding_features: List[str] | None = None,
-    target_encoding: Dict[str, str] | None = None,
-    ordinal_features: List[str] | None = None,
-    ordinal_encoding: Dict[str, str] | None = None,
-    other_features: List[str] | None = None,
-    model: Dict[str, str] | None = None,
+    target_encoding_features: list[str] | None = None,
+    target_encoding: dict[str, str] | None = None,
+    ordinal_features: list[str] | None = None,
+    ordinal_encoding: dict[str, str] | None = None,
+    other_features: list[str] | None = None,
+    model: dict[str, str] | None = None,
 ) -> Pipeline:
     """
-    Create a modelling pipeline with optional preprocessing steps for categorical and ordinal features.
+    Create a modelling pipeline with optional preprocessing steps.
     Args:
-        categorical_features (List[str] | None): List of categorical feature names. Default is None.
-        target_encoding (Dict[str, str] | None): Parameters for target encoding. Default is None.
-        ordinal_features (List[str] | None): List of ordinal feature names. Default is None.
-        ordinal_encoding (Dict[str, str] | None): Parameters for ordinal encoding. Default is None.
-        model (Dict[str, str] | None): Parameters for the LGBMClassifier model. Default is None.
+        categorical_features (list[str] | None): list of categorical feature names.
+            Default is None.
+        target_encoding (dict[str, str] | None): Parameters for target encoding.
+            Default is None.
+        ordinal_features (list[str] | None): list of ordinal feature names.
+            Default is None.
+        ordinal_encoding (dict[str, str] | None): Parameters for ordinal encoding.
+            Default is None.
+        model (dict[str, str] | None): Parameters for the LGBMClassifier model.
+            Default is None.
     Returns:
         Pipeline: A scikit-learn pipeline with the specified preprocessing and model.
     """
@@ -193,13 +179,38 @@ def create_modelling_pipeline(
             remainder="drop",
         )
     )
-    pipeline = make_pipeline(preprocessor, LGBMClassifier(**model))
 
-    if model is None:
-        model = {}
+    model = LGBMClassifier(**model) if model else LGBMClassifier()
 
+    pipeline = make_pipeline(preprocessor, model)
     pipeline.set_output(transform="pandas")
     return pipeline
+
+
+def map_monotone_constraints(
+    pipeline: Pipeline,
+    features: list,
+    monotone_constraints: dict[str, int],
+) -> list[int]:
+    """
+    Maps monotone constraints to the pipeline.
+
+    Args:
+        pipeline (Pipeline): The machine learning pipeline.
+        X_train (list): The feature list.
+        monotone_constraints (dict[str, int]): The monotone
+            constraints for the features.
+
+    Returns:
+        dict[str, int]: The full monotone constraints mapping for the pipeline.
+    """
+    # Get the column mapping from the column transformer
+    col_mapping = pipeline[:-1].get_feature_names_out(features)
+    feature_mapping = dict(zip(col_mapping, features))
+
+    # Use defaultdict(int) for efficient constraint lookup
+    constraints_map = defaultdict(int, monotone_constraints)
+    return [constraints_map[feature_mapping.get(f, f)] for f in col_mapping]
 
 
 @expand_args
@@ -207,23 +218,24 @@ def train_model(
     X_train: pd.DataFrame,
     y_train: pd.Series,
     pipeline: Pipeline,
-    cv_conf: Dict[str, Any],
+    cv_conf: dict[str, Any],
     scoring: str,
-    sampler_conf: Dict[str, Any],
-    study_conf: Dict[str, Any],
-) -> Tuple[Any, Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
+    sampler_conf: dict[str, Any],
+    study_conf: dict[str, Any],
+    monotone_constraints: dict[str, int],
+) -> tuple[Any, dict[str, Any], dict[str, Any], dict[str, Any]]:
     """
-    Train a machine learning model using a pipeline and hyperparameter optimization with Optuna.
+    Train a machine learning model using a pipeline and hyperparameter optimization.
     Args:
         X_train (pd.DataFrame): Training feature data.
         y_train (pd.Series): Training target data.
         pipeline (Pipeline): A scikit-learn pipeline object.
-        cv_conf (Dict[str, Any]): Configuration dictionary for cross-validation.
+        cv_conf (dict[str, Any]): Configuration dictionary for cross-validation.
         scoring (str): Scoring metric to evaluate the model.
-        sampler_conf (Dict[str, Any]): Configuration dictionary for the Optuna sampler.
-        study_conf (Dict[str, Any]): Configuration dictionary for the Optuna study.
+        sampler_conf (dict[str, Any]): Configuration dictionary for the Optuna sampler.
+        study_conf (dict[str, Any]): Configuration dictionary for the Optuna study.
     Returns:
-        Tuple[Any, Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
+        tuple[Any, dict[str, Any], dict[str, Any], dict[str, Any]]:
             - Trained pipeline with the best parameters.
             - Best hyperparameters found by Optuna.
             - Best score achieved by the model.
@@ -231,16 +243,21 @@ def train_model(
     """
 
     def objective(trial):
-        # TODO update parameters
         params = {
+            "lgbmclassifier__num_leaves": trial.suggest_int(
+                "lgbmclassifier__num_leaves", 20, 150
+            ),
             "lgbmclassifier__learning_rate": trial.suggest_float(
                 "lgbmclassifier__learning_rate", 0.01, 0.1, log=True
             ),
             "lgbmclassifier__max_depth": trial.suggest_int(
-                "lgbmclassifier__max_depth", 3, 6
+                "lgbmclassifier__max_depth", 3, 8
+            ),
+            "lgbmclassifier__min_child_samples": trial.suggest_int(
+                "lgbmclassifier__min_child_samples", 5, 100
             ),
             "lgbmclassifier__n_estimators": trial.suggest_int(
-                "lgbmclassifier__n_estimators", 10, 500
+                "lgbmclassifier__n_estimators", 20, 250
             ),
             "lgbmclassifier__min_split_gain": trial.suggest_float(
                 "lgbmclassifier__min_split_gain", 0.01, 1.0, log=True
@@ -258,14 +275,23 @@ def train_model(
             scoring=scoring,
             error_score="raise",
         )
-        # scoring functions in sklearn are by default maximization functions, so we need to negate the score
+        # scoring functions in sklearn are by default maximization functions,
+        # so we need to negate the score
         return -scores.mean()
 
+    # Map the monotone constraints to the pipeline
+    pipeline.fit(X_train.head(), y_train.head())
+    full_monotone_constraints = map_monotone_constraints(
+        pipeline, X_train.columns.to_list(), monotone_constraints
+    )
+    pipeline.set_params(lgbmclassifier__monotone_constraints=full_monotone_constraints)
+
+    # Hyperparameter tuning with Optuna
     sampler = TPESampler(**sampler_conf)
     study = optuna.create_study(direction="minimize", sampler=sampler)
     study.optimize(objective, **study_conf)
 
-    # Set the best parameters to the pipeline
+    # Apply the best parameters and fit the pipeline
     pipeline.set_params(**study.best_params)
     pipeline.fit(X_train, y_train)
 
@@ -278,9 +304,9 @@ def plot_feature_importance(fitted_pipeline: Pipeline) -> Figure:
     Plots the feature importance of a fitted machine learning pipeline.
 
     Args:
-        fitted_pipeline (Pipeline): A scikit-learn pipeline object that has been fitted to the data.
-                                    The last step of the pipeline should be a model that supports
-                                    feature importance plotting.
+        fitted_pipeline (Pipeline): A scikit-learn pipeline object that has been
+            fitted to the data. The last step of the pipeline should be a
+            model that supports feature importance plotting.
 
     Returns:
         Figure: A matplotlib Figure object containing the feature importance plot.
@@ -297,7 +323,7 @@ def plot_training_metric(
     X_train: pd.DataFrame,
     y_train: pd.Series,
     fitted_pipeline: Pipeline,
-    test_size: float = 0.3,
+    test_size: float = 0.2,
 ) -> Figure:
     """
     Plots the training metric for a given pipeline.
@@ -305,7 +331,8 @@ def plot_training_metric(
         X_train (pd.DataFrame): The training feature data.
         y_train (pd.Series): The training target data.
         fitted_pipeline (Pipeline): The machine learning pipeline that has been fitted.
-        test_size (float, optional): The proportion of the data to be used as validation set. Defaults to 0.3.
+        test_size (float, optional): The proportion of the data to be used as
+            validation set. Defaults to 0.3.
     Returns:
         Figure: The matplotlib figure object containing the plot of the training metric.
     """

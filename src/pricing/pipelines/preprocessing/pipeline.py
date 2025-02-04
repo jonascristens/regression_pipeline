@@ -5,7 +5,7 @@ generated using Kedro 0.19.11
 
 from kedro.pipeline import Pipeline, node, pipeline  # noqa
 
-from .nodes import convert_dtype_columns, standardize_dataset
+from .nodes import convert_dtype_columns, standardize_dataset, clean_dataset
 
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -23,8 +23,14 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "standardized_dataset",
                     "params:dtypes",
                 ],
-                outputs="master_dataset",
+                outputs="dtype_converted_dataset",
                 name="convert_dtype_columns_node",
+            ),
+            node(
+                func=clean_dataset,
+                inputs=["dtype_converted_dataset", "params:clean"],
+                outputs="master_dataset",
+                name="clean_dataset_node",
             ),
         ],
         namespace="preprocessing",

@@ -4,7 +4,7 @@ generated using Kedro 0.19.11
 """
 
 import logging
-from typing import Any, Dict
+from typing import Any
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -12,15 +12,21 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import shap
+from dython.model_utils import ks_abc, metric_graph
+from sklearn.calibration import CalibrationDisplay
 from sklearn.inspection import PartialDependenceDisplay
-from sklearn.metrics import (ConfusionMatrixDisplay, PrecisionRecallDisplay,
-                             RocCurveDisplay, accuracy_score, f1_score,
-                             log_loss, precision_score, recall_score,
-                             roc_auc_score)
+from sklearn.metrics import (
+    ConfusionMatrixDisplay,
+    accuracy_score,
+    f1_score,
+    log_loss,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 from sklearn.pipeline import Pipeline
 
 from pricing.utils import expand_args
-from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +43,8 @@ def predict(X_test: pd.DataFrame, fitted_pipeline: Pipeline) -> pd.DataFrame:
         fitted_pipeline (Pipeline): The fitted machine learning pipeline.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the predictions and the prediction probabilities.
+        pd.DataFrame: A DataFrame containing the predictions and the prediction
+            probabilities.
     """
 
     return fitted_pipeline.predict(X_test), fitted_pipeline.predict_proba(X_test)[:, 1]
@@ -46,7 +53,7 @@ def predict(X_test: pd.DataFrame, fitted_pipeline: Pipeline) -> pd.DataFrame:
 @expand_args
 def evaluate_model_metrics(
     y_test: pd.Series, y_pred: pd.Series, y_pred_proba: pd.Series
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Evaluate and return various performance metrics for a classification model.
     Args:
@@ -54,13 +61,14 @@ def evaluate_model_metrics(
         y_pred (pd.Series): Predicted labels by the model.
         y_pred_proba (pd.Series): Predicted probabilities by the model.
     Returns:
-        Dict[str, Any]: A dictionary containing the following metrics:
+        dict[str, Any]: A dictionary containing the following metrics:
             - "AUC": Area Under the ROC Curve.
             - "Precision": Precision score.
             - "Recall": Recall score.
             - "F1-Score": F1 score.
             - "Log-Loss": Logarithmic loss.
             - "Accuracy": Accuracy score.
+            - "KS-abc": Kolmogorov-Smirnov area between curves.
     """
 
     report = {
@@ -70,6 +78,7 @@ def evaluate_model_metrics(
         "F1-Score": f1_score(y_test, y_pred),
         "Log-Loss": log_loss(y_test, y_pred_proba),
         "Accuracy": accuracy_score(y_test, y_pred),
+        "KS-abc": ks_abc(y_test, y_pred_proba)["abc"],
     }
     return report
 
@@ -86,14 +95,13 @@ def plot_roc_auc(y_test: pd.Series, y_pred_proba: pd.Series):
     Returns:
         matplotlib.figure.Figure: The figure object containing the ROC AUC plot.
     """
-
-    return RocCurveDisplay.from_predictions(y_test, y_pred_proba).figure_
+    return metric_graph(y_test, y_pred_proba, "roc")["ax"].get_figure()
 
 
 @expand_args
-def plot_precision_recall(y_test: pd.Series, y_pred: pd.Series):
+def plot_precision_recall(y_test: pd.Series, y_pred_proba: pd.Series):
     """Plot the Precision-Recall curve."""
-    return PrecisionRecallDisplay.from_predictions(y_test, y_pred).figure_
+    return metric_graph(y_test, y_pred_proba, "pr")["ax"].get_figure()
 
 
 @expand_args
@@ -106,10 +114,41 @@ def plot_confusion_matrix(y_test: pd.Series, y_pred: pd.Series):
         y_pred (pd.Series): Predicted labels.
 
     Returns:
-        matplotlib.figure.Figure: The figure object containing the confusion matrix plot.
+        matplotlib.figure.Figure: The figure object containing the confusion
+            matrix plot.
     """
 
     return ConfusionMatrixDisplay.from_predictions(y_test, y_pred).figure_
+
+
+@expand_args
+def plot_calibration_curve(y_test: pd.Series, y_pred_proba: pd.Series):
+    """
+    Plots the calibration curve for the given true labels and predicted probabilities.
+
+    Args:
+        y_test (pd.Series): True labels.
+        y_pred_proba (pd.Series): Predicted probabilities for the positive class.
+    Returns:
+        matplotlib.figure.Figure: The figure object containing the calibration
+            curve plot.
+    """
+    return CalibrationDisplay.from_predictions(y_test, y_pred_proba).figure_
+
+
+@expand_args
+def plot_ks_abc(y_test: pd.Series, y_pred_proba: pd.Series) -> plt.Figure:
+    """
+    Plots the Kolmogorov-Smirnov statistic for binary classification.
+
+    Args:
+        y_test (pd.Series): True labels.
+        y_pred (pd.Series): Predicted probabilities for the positive class.
+
+    Returns:
+        matplotlib.figure.Figure: The figure object containing the KS plot.
+    """
+    return ks_abc(y_test, y_pred_proba)["ax"].get_figure()
 
 
 @expand_args
@@ -128,9 +167,12 @@ def plot_actual_vs_expected(
         X_test (pd.DataFrame): The test dataset features.
         y_test (pd.Series): The actual target values.
         y_pred (pd.Series): The predicted target values.
-        benchmark (pd.Series, optional): The benchmark target values for comparison. Defaults to None.
-        exposure (pd.Series, optional): The exposure values for weighting. Defaults to None.
-        q (int, optional): The number of quantiles for binning numerical features. Defaults to 10.
+        benchmark (pd.Series, optional): The benchmark target values for comparison.
+            Defaults to None.
+        exposure (pd.Series, optional): The exposure values for weighting.
+            Defaults to None.
+        q (int, optional): The number of quantiles for binning numerical features.
+            Defaults to 10.
 
     Returns:
         dict: A dictionary where keys are filenames and values are matplotlib figures.
@@ -160,17 +202,20 @@ def plot_actual_vs_expected(
         # Aggregate with weighted means
         agg_dict = {
             "Observed": lambda x: np.average(
-                x, weights=temp_df.loc[x.index, "Exposure"]
+                x,
+                weights=temp_df.loc[x.index, "Exposure"],  # noqa: B023
             ),
             "Predicted": lambda x: np.average(
-                x, weights=temp_df.loc[x.index, "Exposure"]
+                x,
+                weights=temp_df.loc[x.index, "Exposure"],  # noqa: B023
             ),
             "Exposure": "sum",
         }
 
         if benchmark is not None:
             agg_dict["Benchmark"] = lambda x: np.average(
-                x, weights=temp_df.loc[x.index, "Exposure"]
+                x,
+                weights=temp_df.loc[x.index, "Exposure"],  # noqa: B023
             )
 
         df_grouped = (
@@ -281,17 +326,21 @@ def generate_shap_values(fitted_pipeline, X_test) -> np.ndarray:
     return shap_values
 
 
+@expand_args
 def plot_shap_feature_importance(shap_values, X_test, feature_names=None) -> plt.Figure:
     """
     Plots the SHAP feature importance.
 
     Args:
         shap_values (shap.Explanation or numpy.ndarray): SHAP values for the features.
-        X_test (pandas.DataFrame or numpy.ndarray): Test dataset used to extract feature names if not provided.
-        feature_names (list of str, optional): List of feature names. If None, feature names are extracted from X_test if it is a DataFrame.
+        X_test (pandas.DataFrame or numpy.ndarray): Test dataset used to extract
+            feature names if not provided.
+        feature_names (list of str, optional): list of feature names. If None,
+            feature names are extracted from X_test if it is a DataFrame.
 
     Returns:
-        matplotlib.figure.Figure: The matplotlib figure object containing the SHAP feature importance plot.
+        matplotlib.figure.Figure: The matplotlib figure object containing the SHAP
+            feature importance plot.
     """
 
     # Ensure feature names are extracted if X_test is a DataFrame
@@ -312,12 +361,16 @@ def plot_shap_beeswarm(shap_values, X_test, feature_names=None) -> plt.Figure:
     Generates a SHAP beeswarm plot for the given SHAP values and test dataset.
 
     Args:
-        shap_values (shap.Explanation or numpy.ndarray): SHAP values for the test dataset.
-        X_test (pandas.DataFrame or numpy.ndarray): Test dataset used to compute SHAP values.
-        feature_names (list of str, optional): List of feature names. If None, feature names will be extracted from X_test if it is a DataFrame.
+        shap_values (shap.Explanation or numpy.ndarray): SHAP values for the test
+            dataset.
+        X_test (pandas.DataFrame or numpy.ndarray): Test dataset used to compute SHAP
+            values.
+        feature_names (list of str, optional): list of feature names. If None,
+            feature names will be extracted from X_test if it is a DataFrame.
 
     Returns:
-        matplotlib.figure.Figure: The generated SHAP beeswarm plot as a Matplotlib Figure object.
+        matplotlib.figure.Figure: The generated SHAP beeswarm plot as a Matplotlib
+            Figure object.
     """
 
     # Ensure feature names are extracted if X_test is a DataFrame
@@ -334,17 +387,21 @@ def plot_shap_beeswarm(shap_values, X_test, feature_names=None) -> plt.Figure:
 
 @expand_args
 def plot_sklearn_pdp(
-    fitted_pipeline: Pipeline, X_test: pd.DataFrame, features: List | None = None
+    fitted_pipeline: Pipeline, X_test: pd.DataFrame, features: list | None = None
 ):
     """
-    Generates partial dependence plots for specified features using a fitted scikit-learn pipeline.
+    Generates partial dependence plots for specified features using a fitted
+        scikit-learn pipeline.
     Args:
         fitted_pipeline (Pipeline): A fitted scikit-learn pipeline.
-        X_test (pd.DataFrame): The test dataset containing features for which partial dependence plots are to be generated.
-        features (List | None, optional): List of feature names for which to generate partial dependence plots.
-                                            If None, numeric features from X_test will be used. Defaults to None.
+        X_test (pd.DataFrame): The test dataset containing features for which
+            partial dependence plots are to be generated.
+        features (list | None, optional): list of feature names for which to generate
+            partial dependence plots. If None, numeric features from X_test
+            will be used. Defaults to None.
     Returns:
-        dict: A dictionary where keys are filenames of the plots and values are the corresponding matplotlib figure objects.
+        dict: A dictionary where keys are filenames of the plots and values
+            are the corresponding matplotlib figure objects.
     """
 
     # Ensure feature names are extracted if X_test is a DataFrame
@@ -352,7 +409,7 @@ def plot_sklearn_pdp(
         features = X_test.select_dtypes("number").columns.tolist()
 
     plots_dict = {}
-    for feature in features:
+    for feature in features:  # type: ignore
         fig, ax = plt.subplots(1, 1, figsize=(10, 5))
 
         PartialDependenceDisplay.from_estimator(

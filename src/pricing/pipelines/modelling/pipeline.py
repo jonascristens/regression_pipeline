@@ -4,9 +4,16 @@ generated using Kedro 0.19.8
 
 from kedro.pipeline import Pipeline, node, pipeline
 
-from .nodes import (create_modelling_pipeline, create_train_test_split,
-                    filter_dataset, fix_target, plot_feature_importance,
-                    plot_training_metric, train_model)
+from .nodes import (
+    create_modelling_pipeline,
+    create_train_test_split,
+    filter_dataset,
+    fix_target,
+    plot_feature_importance,
+    plot_training_metric,
+    train_model,
+    x_y_split,
+)
 
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -30,14 +37,15 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 create_train_test_split,
-                inputs=["modelling_dataset", "params:split"],
-                outputs=[
-                    "x_train",
-                    "y_train",
-                    "x_test",
-                    "y_test",
-                ],
+                inputs=["modelling_dataset", "params:train_split"],
+                outputs=["df_train", "df_test"],
                 name="create_train_test_split_node",
+            ),
+            node(
+                x_y_split,
+                inputs=["df_train", "df_test", "params:x_y_split"],
+                outputs=["x_train", "y_train", "x_test", "y_test"],
+                name="x_y_split_node",
             ),
             node(
                 create_modelling_pipeline,
